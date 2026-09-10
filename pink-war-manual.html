@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UPSC 2027 — The Pink War Manual</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Zen+Maru+Gothic:wght@400;500;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sakura:#FFC0CB; --rose:#FFB6C1; --lav:#E6E6FA; --soft:#FFF9FB;
+    --gold-rose:#B76E79; --gold:#D4AF37; --ink:#4a2b33; --ink-soft:#7a5560;
+  }
+  .dark{
+    --soft:#211219; --ink:#f6e6ea; --ink-soft:#d9b8c3; --sakura:#e88aa0; --rose:#d97a95; --lav:#a9a0d9;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:'Jost',sans-serif; background:var(--soft); color:var(--ink); transition:background .4s,color .4s;}
+  h1,h2,h3,.serif{font-family:'Cormorant Garamond',serif;}
+  .jp{font-family:'Zen Maru Gothic',sans-serif;}
+  .glass{background:rgba(255,255,255,0.55); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:1px solid rgba(255,255,255,0.6);}
+  .dark .glass{background:rgba(40,20,28,0.55); border:1px solid rgba(255,255,255,0.08);}
+  .card{border-radius:22px; box-shadow:0 8px 30px rgba(183,110,121,0.14);}
+  .goldline{background:linear-gradient(90deg,var(--gold-rose),var(--gold));}
+  .btn-gold{background:linear-gradient(135deg,var(--gold-rose),var(--gold)); color:#fff; box-shadow:0 6px 20px rgba(183,110,121,0.35);}
+  .btn-gold:hover{filter:brightness(1.08); transform:translateY(-1px);}
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--gold-rose); border-radius:8px;}
+  .petal{position:fixed; top:-5%; z-index:0; pointer-events:none; opacity:.85; will-change:transform;}
+  @keyframes fall{ to{ transform:translateY(110vh) rotate(360deg); } }
+  .navlink{position:relative; padding:.55rem .9rem; border-radius:12px; transition:.25s;}
+  .navlink:hover, .navlink.active{background:rgba(255,192,203,.35); color:var(--gold-rose);}
+  .dark .navlink:hover, .dark .navlink.active{background:rgba(255,192,203,.12);}
+  .meter{height:12px; border-radius:999px; background:rgba(183,110,121,.15); overflow:hidden;}
+  .meter > div{height:100%; border-radius:999px; transition:width 1s cubic-bezier(.22,1,.36,1);}
+  .week-cell{aspect-ratio:1; border-radius:8px; cursor:pointer; transition:.2s; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600;}
+  .week-cell:hover{transform:scale(1.12); z-index:2;}
+  .panel-slide{transition:transform .35s ease, opacity .35s ease;}
+  section{scroll-margin-top:90px;}
+  input[type=text],input[type=number],input[type=date],textarea,select{
+    background:rgba(255,255,255,.7); border:1px solid rgba(183,110,121,.3); border-radius:12px; padding:.5rem .75rem; width:100%; color:var(--ink);
+  }
+  .dark input,.dark textarea,.dark select{background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.15);}
+  .chip{padding:.2rem .6rem; border-radius:999px; font-size:11px; font-weight:600;}
+  table{width:100%; border-collapse:collapse;}
+  td,th{padding:.5rem .6rem; border-bottom:1px solid rgba(183,110,121,.15); font-size:13px; text-align:left;}
+</style>
+</head>
+<body class="relative">
+
+<div id="petals" class="fixed inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="fixed left-0 top-0 h-full w-64 hidden lg:flex flex-col glass z-40 px-5 py-6 border-r">
+  <div class="mb-8">
+    <h1 class="text-2xl serif font-semibold" style="color:var(--gold-rose)">🌸 Pink War Manual</h1>
+    <p class="text-xs mt-1 opacity-70 tracking-wide">MISSION IAS · AIR &lt; 100</p>
+  </div>
+  <nav class="flex flex-col gap-1 text-sm">
+    <a href="#dashboard" class="navlink active">Dashboard</a>
+    <a href="#weekly" class="navlink">Weekly Missions</a>
+    <a href="#monthly" class="navlink">Monthly Plans</a>
+    <a href="#physics" class="navlink">Physics</a>
+    <a href="#currentaffairs" class="navlink">Current Affairs</a>
+    <a href="#mocktests" class="navlink">Mock Tests</a>
+    <a href="#habits" class="navlink">Habit Tracker</a>
+    <a href="#reviews" class="navlink">Reviews</a>
+    <a href="#air100" class="navlink">AIR &lt;100 Tracker</a>
+    <a href="#settings" class="navlink">Settings</a>
+  </nav>
+  <div class="mt-auto pt-6 text-xs opacity-60 leading-relaxed">
+    Working professional · Physics optional<br>2 hrs/day · UPSC CSE 2027
+  </div>
+</aside>
+
+<!-- Mobile top bar -->
+<div class="lg:hidden fixed top-0 left-0 right-0 z-40 glass flex items-center justify-between px-4 py-3 border-b">
+  <span class="serif text-lg font-semibold" style="color:var(--gold-rose)">🌸 Pink War Manual</span>
+  <button id="mobileMenuBtn" class="text-2xl leading-none">☰</button>
+</div>
+<nav id="mobileNav" class="lg:hidden hidden fixed top-[52px] left-0 right-0 z-40 glass border-b px-4 py-3 flex flex-wrap gap-2 text-sm">
+  <a href="#dashboard" class="navlink">Dashboard</a>
+  <a href="#weekly" class="navlink">Weekly</a>
+  <a href="#monthly" class="navlink">Monthly</a>
+  <a href="#physics" class="navlink">Physics</a>
+  <a href="#currentaffairs" class="navlink">Curr. Affairs</a>
+  <a href="#mocktests" class="navlink">Mocks</a>
+  <a href="#habits" class="navlink">Habits</a>
+  <a href="#reviews" class="navlink">Reviews</a>
+  <a href="#air100" class="navlink">AIR100</a>
+  <a href="#settings" class="navlink">Settings</a>
+</nav>
+
+<main class="lg:ml-64 relative z-10 pt-16 lg:pt-0">
+
+<!-- ===== HERO ===== -->
+<section id="hero" class="relative px-6 lg:px-14 pt-10 lg:pt-16 pb-14 overflow-hidden">
+  <div class="max-w-6xl mx-auto grid lg:grid-cols-[1.3fr_1fr] gap-10 items-center">
+    <div>
+      <p class="jp text-sm tracking-[0.3em] opacity-70 mb-3">運命は準備された心に微笑む</p>
+      <h1 class="text-5xl md:text-6xl serif font-semibold leading-[1.05]" style="color:var(--gold-rose)">UPSC 2027<br>Pink War Room</h1>
+      <p class="mt-4 text-lg opacity-80">Mission IAS · AIR Under 100</p>
+      <p class="mt-5 max-w-md text-sm leading-relaxed opacity-70">Two disciplined hours a day, tracked with the precision of a mission command center. Every week is a battle. Every topic, a target.</p>
+      <div class="mt-7 flex gap-3">
+        <button onclick="document.getElementById('weekly').scrollIntoView({behavior:'smooth'})" class="btn-gold px-6 py-3 rounded-full text-sm font-medium">Open battle grid</button>
+        <button onclick="toggleDark()" id="heroDarkBtn" class="px-6 py-3 rounded-full text-sm font-medium border" style="border-color:var(--gold-rose)">Toggle dark mode</button>
+      </div>
+    </div>
+    <div class="flex justify-center">
+      <svg viewBox="0 0 220 220" class="w-64 h-64 md:w-72 md:h-72">
+        <circle cx="110" cy="110" r="95" fill="none" stroke="rgba(183,110,121,.15)" stroke-width="14"/>
+        <circle id="ringPrelims" cx="110" cy="110" r="95" fill="none" stroke="var(--sakura)" stroke-width="14" stroke-linecap="round" stroke-dasharray="597" stroke-dashoffset="597" transform="rotate(-90 110 110)"/>
+        <circle cx="110" cy="110" r="72" fill="none" stroke="rgba(183,110,121,.12)" stroke-width="12"/>
+        <circle id="ringMains" cx="110" cy="110" r="72" fill="none" stroke="var(--gold-rose)" stroke-width="12" stroke-linecap="round" stroke-dasharray="452" stroke-dashoffset="452" transform="rotate(-90 110 110)"/>
+        <circle cx="110" cy="110" r="51" fill="none" stroke="rgba(183,110,121,.1)" stroke-width="10"/>
+        <circle id="ringPhysics" cx="110" cy="110" r="51" fill="none" stroke="var(--lav)" stroke-width="10" stroke-linecap="round" stroke-dasharray="320" stroke-dashoffset="320" transform="rotate(-90 110 110)"/>
+        <text x="110" y="105" text-anchor="middle" class="serif" font-size="26" fill="var(--gold-rose)" font-weight="600">Ready</text>
+        <text x="110" y="126" text-anchor="middle" font-size="10" fill="var(--ink-soft)">overall readiness</text>
+      </svg>
+    </div>
+  </div>
+  <div class="max-w-6xl mx-auto grid sm:grid-cols-3 gap-4 mt-6 text-sm">
+    <div class="glass card p-4"><p class="opacity-60 text-xs">Prelims readiness</p><p id="heroPrelimsPct" class="text-2xl serif font-semibold" style="color:var(--gold-rose)">0%</p></div>
+    <div class="glass card p-4"><p class="opacity-60 text-xs">Mains readiness</p><p id="heroMainsPct" class="text-2xl serif font-semibold" style="color:var(--gold-rose)">0%</p></div>
+    <div class="glass card p-4"><p class="opacity-60 text-xs">Physics optional readiness</p><p id="heroPhysicsPct" class="text-2xl serif font-semibold" style="color:var(--gold-rose)">0%</p></div>
+  </div>
+</section>
+
+<!-- ===== SECTION 1: COMMAND DASHBOARD ===== -->
+<section id="dashboard" class="px-6 lg:px-14 py-10">
+  <h2 class="text-3xl serif font-semibold mb-6" style="color:var(--gold-rose)">Command dashboard</h2>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="glass card p-5"><p class="text-2xl">🎯</p><p class="text-xs opacity-60 mt-2">Rank target</p><p class="text-xl serif font-semibold">AIR &lt; 100</p></div>
+    <div class="glass card p-5"><p class="text-2xl">📚</p><p class="text-xs opacity-60 mt-2">Study hours completed</p><p id="studyHoursVal" class="text-xl serif font-semibold">0 hrs</p><input type="number" id="studyHoursInput" placeholder="log today's hours" class="mt-2 text-xs"></div>
+    <div class="glass card p-5"><p class="text-2xl">⚛</p><p class="text-xs opacity-60 mt-2">Physics progress</p><p id="physicsProgVal" class="text-xl serif font-semibold">0%</p></div>
+    <div class="glass card p-5"><p class="text-2xl">📰</p><p class="text-xs opacity-60 mt-2">Current affairs status</p><p id="caProgVal" class="text-xl serif font-semibold">0%</p></div>
+    <div class="glass card p-5"><p class="text-2xl">🔥</p><p class="text-xs opacity-60 mt-2">Consistency streak</p><p id="streakVal" class="text-xl serif font-semibold">0 days</p></div>
+  </div>
+</section>
+
+<!-- ===== SECTION 2: READINESS METERS ===== -->
+<section class="px-6 lg:px-14 py-6">
+  <div class="glass card p-6 space-y-5">
+    <h3 class="serif text-xl font-semibold" style="color:var(--gold-rose)">UPSC readiness meters</h3>
+    <div><div class="flex justify-between text-xs mb-1"><span>Prelims readiness</span><span id="mPrelimsTxt">0%</span></div><div class="meter"><div id="mPrelims" style="width:0%;background:var(--sakura)"></div></div></div>
+    <div><div class="flex justify-between text-xs mb-1"><span>Mains readiness</span><span id="mMainsTxt">0%</span></div><div class="meter"><div id="mMains" style="width:0%;background:var(--gold-rose)"></div></div></div>
+    <div><div class="flex justify-between text-xs mb-1"><span>Physics optional</span><span id="mPhysicsTxt">0%</span></div><div class="meter"><div id="mPhysics" style="width:0%;background:var(--lav)"></div></div></div>
+    <div><div class="flex justify-between text-xs mb-1"><span>Current affairs</span><span id="mCaTxt">0%</span></div><div class="meter"><div id="mCa" style="width:0%;background:var(--rose)"></div></div></div>
+  </div>
+</section>
+
+<!-- ===== SECTION 3: 34 WEEK BATTLE GRID ===== -->
+<section id="weekly" class="px-6 lg:px-14 py-10">
+  <h2 class="text-3xl serif font-semibold mb-2" style="color:var(--gold-rose)">34 week battle grid</h2>
+  <p class="text-sm opacity-60 mb-5">Click a week to open its mission brief.</p>
+  <div class="flex gap-4 flex-wrap text-xs mb-4">
+    <span class="chip" style="background:#e5e5ea">Not started</span>
+    <span class="chip" style="background:var(--sakura);color:#5c2233">Started</span>
+    <span class="chip" style="background:var(--lav);color:#332a5c">In progress</span>
+    <span class="chip" style="background:var(--gold);color:#4a3b06">Completed</span>
+  </div>
+  <div id="weekGrid" class="grid grid-cols-6 sm:grid-cols-9 lg:grid-cols-17 gap-2"></div>
+</section>
+
+<!-- Week side panel -->
+<div id="weekPanelOverlay" class="fixed inset-0 bg-black/30 z-50 hidden" onclick="closeWeekPanel(event)">
+  <div id="weekPanel" class="panel-slide absolute right-0 top-0 h-full w-full sm:w-[420px] glass p-6 overflow-y-auto translate-x-full" onclick="event.stopPropagation()">
+    <button onclick="closeWeekPanel()" class="float-right text-xl">×</button>
+    <h3 id="wpTitle" class="serif text-2xl font-semibold mb-4" style="color:var(--gold-rose)">Week</h3>
+    <label class="text-xs opacity-60">Status</label>
+    <select id="wpStatus" class="mb-3"><option value="not">Not started</option><option value="started">Started</option><option value="progress">In progress</option><option value="done">Completed</option></select>
+    <label class="text-xs opacity-60">Week mission</label>
+    <input type="text" id="wpMission" class="mb-3" placeholder="e.g. Clear Mechanics + Polity basics">
+    <label class="text-xs opacity-60">GS topics</label>
+    <textarea id="wpGs" rows="2" class="mb-3"></textarea>
+    <label class="text-xs opacity-60">Physics topics</label>
+    <textarea id="wpPhysics" rows="2" class="mb-3"></textarea>
+    <label class="text-xs opacity-60">MCQ targets</label>
+    <input type="text" id="wpMcq" class="mb-3" placeholder="e.g. 200 MCQs">
+    <label class="text-xs opacity-60">Current affairs</label>
+    <input type="text" id="wpCa" class="mb-3">
+    <label class="text-xs opacity-60">Revision tasks</label>
+    <textarea id="wpRevision" rows="2" class="mb-4"></textarea>
+    <button onclick="saveWeek()" class="btn-gold w-full py-2.5 rounded-full text-sm font-medium">Save week</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: MONTHLY WAR MAP ===== -->
+<section id="monthly" class="px-6 lg:px-14 py-10">
+  <h2 class="text-3xl serif font-semibold mb-6" style="color:var(--gold-rose)">Monthly war map</h2>
+  <div id="monthGrid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+</section>
+
+<!-- ===== SECTION 5: PHYSICS COMMAND CENTER ===== -->
+<section id="physics" class="px-6 lg:px-14 py-10">
+  <h2 class="text-3xl serif font-semibold mb-6" style="color:var(--gold-rose)">Physics command center</h2>
+  <div class="grid lg:grid-cols-[1fr_1fr_260px] gap-6">
+    <div class="glass card p-5">
+      <h4 class="serif text-lg font-semibold mb-3">Paper I</h4>
+      <div id="paper1List" class="space-y-2 text-sm"></div>
+    </div>
+    <div class="glass card p-5">
+      <h4 class="serif text-lg font-semibold mb-3">Paper II</h4>
+      <div id="paper2List" class="space-y-2 text-sm"></div>
+    </div>
+    <div class="glass card p-5 flex flex-col items-center justify-center">
+      <canvas id="physicsChart" width="220" height="220"></canvas>
+      <p class="text-xs opacity-60 mt-3">Topic completion</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION 6: CURRENT AFFAIRS ===== -->
+<section id="currentaffairs" class="px-6 lg:px-14 py-10">
+  <h2 class="text-3xl serif font-semibold mb-6" style="color:var(--gold-rose)">Current affairs center</h2>
+  <div id="caGrid" class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4"></div>
+</section>
+
+<!-- ===== SECTION 7: MOCK TEST WAR ROOM ===== -->
+<section id="mocktests" class="px-6 lg:px-14 py-10">
+  <h2 class="text-3xl serif font-semibold mb-6" style="color:var(--gold-rose)">Mock test war room</h2>
+  <div class="grid lg:grid-cols-[1.4fr_1fr] gap-6">
+    <div class="glass card p-5 overflow-x-auto">
+      <table>
+        <thead><tr><th>#</th><th>Date</th><th>Score</th><th>Accuracy</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="mockTableBody"></tbody>
+      </table>
+      <div class="grid grid-cols-5 gap-2 mt-4 text-xs">
+        <input type="text" id="mNum" placeholder="No.">
+        <input type="date" id="mDate">
+        <input type="number" id="mScore" placeholder="Score">
+        <input type="number" id="mAcc" placeholder="Accuracy %">
+        <input type="text" id="mNotes" placeholder="Notes">
+      </div>
+      <button onclick="addMock()" class="btn-gold mt-3 px-5 py-2 rounded-full text-xs font-medium">Add mock test</button>
+      <div class="flex gap-6 mt-4 text-xs">
+        <span>Average: <b id="mockAvg">0</b></span>
+        <span>Highest: <b id="mockHigh">0</b></span>
+      </div>
+    </div>
+    <div class="glass card p-5"><canvas id="mockChart" height="220"></canvas></div>
+  </div>
+</section>
+
+<!-- ===== SECTION 8: HABIT TRACKER ===== -->
+<section id="habits" class="px-6 lg:px-14 py-10">
+  <h2 class="text-3xl serif font-semibold mb-6" style="color:var(--gold-rose)">Habit tracker</h2>
+  <div id="habitGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</section>
+
+<!-- ===== SECTION 9: WEEKLY REVIEW ===== -->
+<section id="reviews" class="px-6 lg:px-14 py-10">
+  <h2 class="text-3xl serif font-semibold mb-2" style="color:var(--gold-rose)">Weekly review panel</h2>
+  <div class="glass card p-6 mt-4 grid md:grid-cols-2 gap-4">
+    <input type="number" id="rvWeek" placeholder="Week number">
+    <div></div>
+    <textarea id="rvAchieve" placeholder="Achievements" rows="2"></textarea>
+    <textarea id="rvMistakes" placeholder="Mistakes" rows="2"></textarea>
+    <textarea id="rvRecovery" placeholder="Recovery plan" rows="2" class="md:col-span-2"></textarea>
+    <div><label class="text-xs opacity-60">Energy score (1-10)</label><input type="number" id="rvEnergy" min="1" max="10"></div>
+    <div><label class="text-xs opacity-60">Confidence score (1-10)</label><input type="number" id="rvConfidence" min="1" max="10"></div>
+    <div><label class="text-xs opacity-60">Stress meter (1-10)</label><input type="number" id="rvStress" min="1" max="10"></div>
+    <button onclick="saveReview()" class="btn-gold py-2.5 rounded-full text-sm font-medium md:col-span-1">Save locally</button>
+  </div>
+  <div id="reviewList" class="mt-5 space-y-3"></div>
+
+  <h2 class="text-3xl serif font-semibold mt-14 mb-6" style="color:var(--gold-rose)">Monthly review dashboard</h2>
+  <div class="glass card p-6 flex justify-center"><canvas id="radarChart" height="260"></canvas></div>
+</section>
+
+<!-- ===== SECTION 11: AIR UNDER 100 TRACKER ===== -->
+<section id="air100" class="px-6 lg:px-14 py-10">
+  <h2 class="text-3xl serif font-semibold mb-6" style="color:var(--gold-rose)">AIR under 100 tracker</h2>
+  <div id="air100Grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+</section>
+
+<!-- ===== SECTION 12: WAR QUOTES ===== -->
+<section class="px-6 lg:px-14 py-14">
+  <div class="glass card p-10 text-center max-w-3xl mx-auto">
+    <p id="quoteText" class="serif text-2xl leading-relaxed" style="color:var(--gold-rose)"></p>
+  </div>
+</section>
+
+<!-- ===== SETTINGS ===== -->
+<section id="settings" class="px-6 lg:px-14 py-10 pb-24">
+  <h2 class="text-3xl serif font-semibold mb-6" style="color:var(--gold-rose)">Settings</h2>
+  <div class="glass card p-6 flex flex-wrap gap-4 items-center">
+    <button onclick="toggleDark()" class="btn-gold px-6 py-2.5 rounded-full text-sm font-medium">Toggle dark mode</button>
+    <button onclick="if(confirm('Reset all saved progress?')){localStorage.clear();location.reload();}" class="px-6 py-2.5 rounded-full text-sm font-medium border" style="border-color:var(--gold-rose)">Reset all data</button>
+    <p class="text-xs opacity-60">All data is saved automatically to this browser's local storage.</p>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ============ STATE ============ */
+const LS = k => JSON.parse(localStorage.getItem(k) || 'null');
+const SS = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+
+let weeks = LS('pwm_weeks') || Array.from({length:34}, (_,i)=>({num:i+1,status:'not',mission:'',gs:'',physics:'',mcq:'',ca:'',revision:''}));
+let studyHours = LS('pwm_studyHours') || 0;
+let streak = LS('pwm_streak') || 0;
+let lastLogDate = LS('pwm_lastLogDate') || null;
+
+const paper1Topics = ['Mathematical Physics','Mechanics','Waves','EMT','Optics','Thermodynamics','Statistical Physics'];
+const paper2Topics = ['Quantum','Atomic','Nuclear','Solid State','Electronics'];
+let physicsState = LS('pwm_physics') || {};
+[...paper1Topics,...paper2Topics].forEach(t=>{ if(!physicsState[t]) physicsState[t]={done:false,difficulty:2,confidence:2}; });
+
+const caCats = ['Governance','Economy','Environment','International Relations','Science & Technology'];
+let caState = LS('pwm_ca') || {};
+caCats.forEach(c=>{ if(!(c in caState)) caState[c]=0; });
+
+let mocks = LS('pwm_mocks') || [];
+const habitNames = ['Study daily','Revision','MCQs','Exercise','Sleep','Water'];
+let habits = LS('pwm_habits') || {};
+habitNames.forEach(h=>{ if(!habits[h]) habits[h]={streak:0,lastDate:null}; });
+
+let reviews = LS('pwm_reviews') || [];
+
+const air100Goals = [
+  {label:'10,000 MCQs', key:'mcq', target:10000},
+  {label:'150 Mains answers', key:'mains', target:150},
+  {label:'500 Physics numericals', key:'numericals', target:500},
+  {label:'30 Mock tests', key:'mocktests', target:30},
+];
+let air100 = LS('pwm_air100') || {mcq:0,mains:0,numericals:0,mocktests:0};
+
+function persistAll(){
+  SS('pwm_weeks',weeks); SS('pwm_studyHours',studyHours); SS('pwm_streak',streak); SS('pwm_lastLogDate',lastLogDate);
+  SS('pwm_physics',physicsState); SS('pwm_ca',caState); SS('pwm_mocks',mocks); SS('pwm_habits',habits);
+  SS('pwm_reviews',reviews); SS('pwm_air100',air100);
+}
+
+/* ============ DERIVED METRICS ============ */
+function weekProgressPct(){
+  const w = {not:0, started:0.33, progress:0.66, done:1};
+  const total = weeks.reduce((s,x)=>s+w[x.status],0);
+  return Math.round(total/weeks.length*100);
+}
+function physicsPct(){
+  const all=[...paper1Topics,...paper2Topics];
+  const done = all.filter(t=>physicsState[t].done).length;
+  return Math.round(done/all.length*100);
+}
+function caPct(){
+  const vals = Object.values(caState);
+  return Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+}
+function prelimsPct(){ return Math.round((weekProgressPct()*0.5 + caPct()*0.3 + Math.min(mocks.length/30*100,100)*0.2)); }
+function mainsPct(){ return Math.round((weekProgressPct()*0.6 + reviews.length*3)); }
+
+/* ============ RENDER: HERO ============ */
+function renderHero(){
+  const p = Math.min(prelimsPct(),100), m = Math.min(mainsPct(),100), ph = physicsPct();
+  document.getElementById('heroPrelimsPct').textContent = p+'%';
+  document.getElementById('heroMainsPct').textContent = m+'%';
+  document.getElementById('heroPhysicsPct').textContent = ph+'%';
+  const c1=597,c2=452,c3=320;
+  document.getElementById('ringPrelims').style.strokeDashoffset = c1 - (c1*p/100);
+  document.getElementById('ringMains').style.strokeDashoffset = c2 - (c2*m/100);
+  document.getElementById('ringPhysics').style.strokeDashoffset = c3 - (c3*ph/100);
+}
+
+/* ============ RENDER: DASHBOARD + METERS ============ */
+function renderDashboard(){
+  document.getElementById('studyHoursVal').textContent = studyHours+' hrs';
+  document.getElementById('physicsProgVal').textContent = physicsPct()+'%';
+  document.getElementById('caProgVal').textContent = caPct()+'%';
+  document.getElementById('streakVal').textContent = streak+' days';
+
+  const p=Math.min(prelimsPct(),100), m=Math.min(mainsPct(),100), ph=physicsPct(), ca=caPct();
+  document.getElementById('mPrelims').style.width=p+'%'; document.getElementById('mPrelimsTxt').textContent=p+'%';
+  document.getElementById('mMains').style.width=m+'%'; document.getElementById('mMainsTxt').textContent=m+'%';
+  document.getElementById('mPhysics').style.width=ph+'%'; document.getElementById('mPhysicsTxt').textContent=ph+'%';
+  document.getElementById('mCa').style.width=ca+'%'; document.getElementById('mCaTxt').textContent=ca+'%';
+}
+
+document.getElementById('studyHoursInput').addEventListener('change', e=>{
+  const v = parseFloat(e.target.value); if(!isNaN(v) && v>0){
+    studyHours += v; e.target.value='';
+    const today = new Date().toDateString();
+    if(lastLogDate !== today){
+      const yesterday = new Date(Date.now()-86400000).toDateString();
+      streak = (lastLogDate===yesterday) ? streak+1 : 1;
+      lastLogDate = today;
+    }
+    persistAll(); renderAll();
+  }
+});
+
+/* ============ RENDER: WEEK GRID ============ */
+const statusColor = {not:'#e5e5ea', started:'var(--sakura)', progress:'var(--lav)', done:'var(--gold)'};
+const statusText = {not:'#6b6b6b', started:'#5c2233', progress:'#332a5c', done:'#4a3b06'};
+let activeWeek = null;
+function renderWeekGrid(){
+  const grid = document.getElementById('weekGrid');
+  grid.innerHTML='';
+  weeks.forEach(w=>{
+    const el = document.createElement('div');
+    el.className='week-cell';
+    el.style.background = statusColor[w.status];
+    el.style.color = statusText[w.status];
+    el.textContent = 'W'+String(w.num).padStart(2,'0');
+    el.onclick = ()=>openWeekPanel(w.num);
+    grid.appendChild(el);
+  });
+}
+function openWeekPanel(num){
+  activeWeek = weeks.find(w=>w.num===num);
+  document.getElementById('wpTitle').textContent = 'Week '+String(num).padStart(2,'0')+' mission brief';
+  document.getElementById('wpStatus').value = activeWeek.status;
+  document.getElementById('wpMission').value = activeWeek.mission;
+  document.getElementById('wpGs').value = activeWeek.gs;
+  document.getElementById('wpPhysics').value = activeWeek.physics;
+  document.getElementById('wpMcq').value = activeWeek.mcq;
+  document.getElementById('wpCa').value = activeWeek.ca;
+  document.getElementById('wpRevision').value = activeWeek.revision;
+  document.getElementById('weekPanelOverlay').classList.remove('hidden');
+  requestAnimationFrame(()=>document.getElementById('weekPanel').classList.remove('translate-x-full'));
+}
+function closeWeekPanel(e){
+  if(e && e.target !== document.getElementById('weekPanelOverlay')) return;
+  document.getElementById('weekPanel').classList.add('translate-x-full');
+  setTimeout(()=>document.getElementById('weekPanelOverlay').classList.add('hidden'),300);
+}
+function saveWeek(){
+  if(!activeWeek) return;
+  activeWeek.status = document.getElementById('wpStatus').value;
+  activeWeek.mission = document.getElementById('wpMission').value;
+  activeWeek.gs = document.getElementById('wpGs').value;
+  activeWeek.physics = document.getElementById('wpPhysics').value;
+  activeWeek.mcq = document.getElementById('wpMcq').value;
+  activeWeek.ca = document.getElementById('wpCa').value;
+  activeWeek.revision = document.getElementById('wpRevision').value;
+  persistAll(); renderAll(); closeWeekPanel({target:document.getElementById('weekPanelOverlay')});
+}
+
+/* ============ RENDER: MONTHLY WAR MAP ============ */
+const months = ['September 2026','October 2026','November 2026','December 2026','January 2027','February 2027','March 2027','April 2027'];
+function renderMonths(){
+  const grid = document.getElementById('monthGrid');
+  grid.innerHTML='';
+  months.forEach((m,i)=>{
+    const startW = i*4+1, endW = Math.min(startW+3,34);
+    const relevant = weeks.filter(w=>w.num>=startW && w.num<=endW);
+    const w = {not:0, started:0.33, progress:0.66, done:1};
+    const pct = relevant.length ? Math.round(relevant.reduce((s,x)=>s+w[x.status],0)/relevant.length*100) : 0;
+    const subjects = relevant.map(w=>w.mission).filter(Boolean).join(' · ') || 'No mission set yet';
+    const div = document.createElement('div');
+    div.className='glass card p-5';
+    div.innerHTML = `<p class="text-xs opacity-60">${m}</p>
+      <p class="text-sm mt-1 mb-3 leading-snug">${subjects}</p>
+      <div class="meter"><div style="width:${pct}%;background:var(--gold-rose)"></div></div>
+      <p class="text-xs mt-1 text-right opacity-70">${pct}% complete</p>`;
+    grid.appendChild(div);
+  });
+}
+
+/* ============ RENDER: PHYSICS ============ */
+let physicsChart;
+function renderPhysics(){
+  const mk = (t)=>`<div class="flex items-center gap-2 p-2 rounded-lg" style="background:rgba(183,110,121,.06)">
+    <input type="checkbox" ${physicsState[t].done?'checked':''} onchange="physicsState['${t}'].done=this.checked;persistAll();renderAll();">
+    <span class="flex-1 ${physicsState[t].done?'line-through opacity-50':''}">${t}</span>
+    <select class="!w-auto text-xs" onchange="physicsState['${t}'].confidence=+this.value;persistAll();">
+      <option value="1" ${physicsState[t].confidence==1?'selected':''}>Low conf.</option>
+      <option value="2" ${physicsState[t].confidence==2?'selected':''}>Med conf.</option>
+      <option value="3" ${physicsState[t].confidence==3?'selected':''}>High conf.</option>
+    </select>
+  </div>`;
+  document.getElementById('paper1List').innerHTML = paper1Topics.map(mk).join('');
+  document.getElementById('paper2List').innerHTML = paper2Topics.map(mk).join('');
+
+  const done = [...paper1Topics,...paper2Topics].filter(t=>physicsState[t].done).length;
+  const total = paper1Topics.length+paper2Topics.length;
+  const ctx = document.getElementById('physicsChart');
+  if(physicsChart) physicsChart.destroy();
+  physicsChart = new Chart(ctx,{type:'doughnut',data:{labels:['Completed','Remaining'],datasets:[{data:[done,total-done],backgroundColor:['#B76E79','#E6E6FA'],borderWidth:0}]},
+    options:{cutout:'72%',plugins:{legend:{display:false}}}});
+}
+
+/* ============ RENDER: CURRENT AFFAIRS ============ */
+function renderCA(){
+  const grid = document.getElementById('caGrid');
+  grid.innerHTML='';
+  caCats.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='glass card p-5';
+    div.innerHTML=`<p class="text-sm font-medium mb-2">${c}</p>
+      <div class="meter mb-2"><div style="width:${caState[c]}%;background:var(--rose)"></div></div>
+      <p class="text-xs opacity-60 mb-2">${caState[c]}% complete</p>
+      <input type="range" min="0" max="100" value="${caState[c]}" class="w-full" oninput="caState['${c}']=+this.value;persistAll();renderAll();">`;
+    grid.appendChild(div);
+  });
+}
+
+/* ============ RENDER: MOCK TESTS ============ */
+let mockChart;
+function addMock(){
+  const num = document.getElementById('mNum').value || (mocks.length+1);
+  const date = document.getElementById('mDate').value;
+  const score = document.getElementById('mScore').value;
+  const acc = document.getElementById('mAcc').value;
+  const notes = document.getElementById('mNotes').value;
+  if(!score) return alert('Enter a score first');
+  mocks.push({num,date,score:+score,acc:+acc||0,notes});
+  ['mNum','mDate','mScore','mAcc','mNotes'].forEach(id=>document.getElementById(id).value='');
+  persistAll(); renderAll();
+}
+function deleteMock(i){ mocks.splice(i,1); persistAll(); renderAll(); }
+function renderMocks(){
+  const body = document.getElementById('mockTableBody');
+  body.innerHTML = mocks.map((m,i)=>`<tr><td>${m.num}</td><td>${m.date||'—'}</td><td>${m.score}</td><td>${m.acc}%</td><td>${m.notes||''}</td><td><button onclick="deleteMock(${i})" class="opacity-50 hover:opacity-100">×</button></td></tr>`).join('') || '<tr><td colspan="6" class="text-center opacity-50 py-4">No mock tests logged yet</td></tr>';
+  const scores = mocks.map(m=>m.score);
+  document.getElementById('mockAvg').textContent = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
+  document.getElementById('mockHigh').textContent = scores.length ? Math.max(...scores) : 0;
+
+  const ctx = document.getElementById('mockChart');
+  if(mockChart) mockChart.destroy();
+  mockChart = new Chart(ctx,{type:'line',data:{labels:mocks.map(m=>'#'+m.num),datasets:[{label:'Score',data:scores,borderColor:'#B76E79',backgroundColor:'rgba(183,110,121,.15)',fill:true,tension:.35}]},
+    options:{plugins:{legend:{display:false},title:{display:true,text:'Score trend'}}}});
+}
+
+/* ============ RENDER: HABITS ============ */
+function toggleHabit(h){
+  const today = new Date().toDateString();
+  if(habits[h].lastDate === today) return;
+  const yesterday = new Date(Date.now()-86400000).toDateString();
+  habits[h].streak = (habits[h].lastDate===yesterday) ? habits[h].streak+1 : 1;
+  habits[h].lastDate = today;
+  persistAll(); renderAll();
+}
+function renderHabits(){
+  const grid = document.getElementById('habitGrid');
+  const today = new Date().toDateString();
+  grid.innerHTML = habitNames.map(h=>{
+    const done = habits[h].lastDate===today;
+    return `<div class="glass card p-5 flex items-center justify-between">
+      <div><p class="font-medium">${h}</p><p class="text-xs opacity-60">${habits[h].streak} day streak</p></div>
+      <button onclick="toggleHabit('${h}')" class="w-10 h-10 rounded-full flex items-center justify-center text-lg ${done?'btn-gold':'border'}" style="border-color:var(--gold-rose)">${done?'✓':''}</button>
+    </div>`;
+  }).join('');
+}
+
+/* ============ RENDER: REVIEWS ============ */
+let radarChart;
+function saveReview(){
+  const wk = document.getElementById('rvWeek').value;
+  if(!wk) return alert('Enter a week number first');
+  reviews.push({
+    week: wk,
+    achieve: document.getElementById('rvAchieve').value,
+    mistakes: document.getElementById('rvMistakes').value,
+    recovery: document.getElementById('rvRecovery').value,
+    energy: +document.getElementById('rvEnergy').value || 5,
+    confidence: +document.getElementById('rvConfidence').value || 5,
+    stress: +document.getElementById('rvStress').value || 5,
+  });
+  ['rvWeek','rvAchieve','rvMistakes','rvRecovery','rvEnergy','rvConfidence','rvStress'].forEach(id=>document.getElementById(id).value='');
+  persistAll(); renderAll();
+}
+function renderReviews(){
+  const list = document.getElementById('reviewList');
+  list.innerHTML = reviews.slice().reverse().map(r=>`<div class="glass card p-4 text-sm">
+    <p class="font-medium mb-1">Week ${r.week} — energy ${r.energy}/10 · confidence ${r.confidence}/10 · stress ${r.stress}/10</p>
+    <p class="opacity-70">${r.achieve||''}</p>
+  </div>`).join('') || '<p class="text-sm opacity-50">No reviews saved yet.</p>';
+
+  const ctx = document.getElementById('radarChart');
+  if(radarChart) radarChart.destroy();
+  const gs = weekProgressPct(), phy = physicsPct(), mcqApprox = Math.min(mocks.length*3,100), tests = Math.min(mocks.length/30*100,100), aw = Math.min(reviews.length*10,100), cons = Math.min(streak*3,100);
+  radarChart = new Chart(ctx,{type:'radar',data:{labels:['GS %','Physics %','MCQs','Tests','Answer writing','Consistency'],
+    datasets:[{label:'This month',data:[gs,phy,mcqApprox,tests,aw,cons],backgroundColor:'rgba(183,110,121,.25)',borderColor:'#B76E79',pointBackgroundColor:'#B76E79'}]},
+    options:{scales:{r:{beginAtZero:true,max:100}}}});
+}
+
+/* ============ RENDER: AIR100 ============ */
+function renderAir100(){
+  const grid = document.getElementById('air100Grid');
+  grid.innerHTML = air100Goals.map(g=>{
+    const cur = air100[g.key];
+    const pct = Math.min(Math.round(cur/g.target*100),100);
+    return `<div class="glass card p-5">
+      <p class="text-sm font-medium mb-1">${g.label}</p>
+      <p class="text-xs opacity-60 mb-2">${cur} done · ${g.target-cur>0?g.target-cur:0} remaining</p>
+      <div class="meter mb-2"><div style="width:${pct}%;background:var(--gold)"></div></div>
+      <div class="flex gap-2">
+        <input type="number" id="air100_${g.key}" placeholder="add" class="text-xs">
+        <button onclick="addAir100('${g.key}')" class="btn-gold px-3 rounded-full text-xs">Add</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function addAir100(key){
+  const inp = document.getElementById('air100_'+key);
+  const v = parseFloat(inp.value);
+  if(!isNaN(v) && v>0){ air100[key]+=v; inp.value=''; persistAll(); renderAll(); }
+}
+
+/* ============ QUOTES ============ */
+const quotes = [
+  "You are not competing with lakhs. You are competing with your weaker self.",
+  "Victory belongs to the disciplined.",
+  "Small actions repeated daily create extraordinary destinies.",
+  "A calm mind on exam day is built in a thousand quiet mornings before it.",
+  "The rank list remembers consistency, not intensity."
+];
+let qi=0;
+function rotateQuote(){ document.getElementById('quoteText').textContent = '"'+quotes[qi%quotes.length]+'"'; qi++; }
+
+/* ============ SAKURA PETALS ============ */
+function spawnPetal(){
+  const p = document.createElement('div');
+  p.className='petal';
+  const size = 8+Math.random()*10;
+  p.style.left = Math.random()*100+'vw';
+  p.style.width = size+'px'; p.style.height = size+'px';
+  p.style.background = Math.random()>0.5 ? 'var(--sakura)' : 'var(--rose)';
+  p.style.borderRadius = '0 60% 0 60%';
+  const dur = 8+Math.random()*8;
+  p.style.animation = `fall ${dur}s linear forwards`;
+  document.getElementById('petals').appendChild(p);
+  setTimeout(()=>p.remove(), dur*1000);
+}
+setInterval(spawnPetal, 900);
+for(let i=0;i<6;i++) setTimeout(spawnPetal, i*300);
+
+/* ============ NAV / DARK MODE / MOBILE ============ */
+document.getElementById('mobileMenuBtn').addEventListener('click', ()=>{
+  document.getElementById('mobileNav').classList.toggle('hidden');
+});
+document.querySelectorAll('.navlink').forEach(a=>{
+  a.addEventListener('click', ()=>{
+    document.querySelectorAll('.navlink').forEach(x=>x.classList.remove('active'));
+    a.classList.add('active');
+    document.getElementById('mobileNav').classList.add('hidden');
+  });
+});
+function toggleDark(){
+  document.documentElement.classList.toggle('dark');
+  localStorage.setItem('pwm_dark', document.documentElement.classList.contains('dark'));
+}
+if(LS('pwm_dark')) document.documentElement.classList.add('dark');
+
+/* ============ MASTER RENDER ============ */
+function renderAll(){
+  renderHero(); renderDashboard(); renderWeekGrid(); renderMonths();
+  renderPhysics(); renderCA(); renderMocks(); renderHabits(); renderReviews(); renderAir100();
+}
+renderAll();
+rotateQuote();
+setInterval(rotateQuote, 6000);
+</script>
+</body>
+</html>
